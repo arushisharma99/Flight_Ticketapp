@@ -1,8 +1,12 @@
 import express from "express";
-import { getTestMessage } from "../controllers/testController.js";
+import {
+  getHealthStatus,
+  getTestMessage,
+} from "../controllers/testController.js";
 
 const router = express.Router();
 
 router.get("/test", getTestMessage);
+router.get("/health", getHealthStatus);
 
 export default router;
