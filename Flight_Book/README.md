@@ -30,7 +30,10 @@ From `Flight_Book/mobile-app/`:
 
 1. Install dependencies:
    - `npm install`
-2. Start Expo:
+2. Configure API base URL (optional but recommended):
+   - Copy `.env.example` to `.env`
+   - Update `EXPO_PUBLIC_API_BASE_URL` for your backend host/IP
+3. Start Expo:
    - `npx expo start --host lan`
 
 Open in Expo Go on your phone by scanning the QR code.
