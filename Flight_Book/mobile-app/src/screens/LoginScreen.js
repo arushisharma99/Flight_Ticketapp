@@ -46,8 +46,18 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <ScreenLayout title="Login Screen">
-      <Text style={styles.subtitle}>Welcome back. Sign in to continue.</Text>
+    <ScreenLayout
+      title="Welcome Back"
+      subtitle="Sign in to explore flights, manage bookings, and get instant travel help."
+      centered
+    >
+      <View style={styles.highlight}>
+        <Text style={styles.highlightTitle}>Secure Access</Text>
+        <Text style={styles.highlightText}>
+          Your account keeps bookings, chat history, and travel preferences in sync.
+        </Text>
+      </View>
+      <Text style={styles.sectionLabel}>Account Details</Text>
       <FormInput
         placeholder="Email"
         autoCapitalize="none"
@@ -67,9 +77,10 @@ const LoginScreen = ({ navigation }) => {
         disabled={loading}
       />
       <PrimaryButton
-        label="Go to Register"
+        label="Create New Account"
         onPress={() => navigation.navigate("Register")}
         disabled={loading}
+        variant="secondary"
       />
       {loading ? (
         <View style={styles.loadingWrap}>
@@ -83,10 +94,29 @@ const LoginScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  subtitle: {
-    textAlign: "center",
+  highlight: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceSoft,
+    borderRadius: 12,
+    padding: 12,
+    gap: 4,
+  },
+  highlightTitle: {
+    color: colors.primaryDark,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  highlightText: {
     color: colors.textMuted,
-    marginBottom: 4,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  sectionLabel: {
+    color: colors.textMuted,
+    fontWeight: "600",
+    fontSize: 13,
+    letterSpacing: 0.2,
   },
   loadingWrap: {
     flexDirection: "row",

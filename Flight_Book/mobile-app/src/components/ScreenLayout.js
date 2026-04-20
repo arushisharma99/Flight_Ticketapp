@@ -1,15 +1,19 @@
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { colors, radius } from "./theme";
 
-const ScreenLayout = ({ title, children }) => {
+const ScreenLayout = ({ title, subtitle, children, centered = false }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, centered && styles.centeredContent]}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.topAccent} />
+        <View style={styles.headingWrap}>
+          <Text style={styles.title}>{title}</Text>
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+        </View>
         <View style={styles.content}>{children}</View>
       </ScrollView>
     </SafeAreaView>
@@ -27,31 +31,58 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     alignItems: "center",
+    justifyContent: "flex-start",
+    paddingHorizontal: 16,
+    paddingTop: 18,
+    paddingBottom: 22,
+  },
+  centeredContent: {
     justifyContent: "center",
-    paddingHorizontal: 18,
-    paddingVertical: 20,
+  },
+  headingWrap: {
+    width: "100%",
+    maxWidth: 390,
+    marginBottom: 12,
+    zIndex: 1,
+  },
+  topAccent: {
+    position: "absolute",
+    top: 0,
+    left: 24,
+    right: 24,
+    height: 84,
+    borderBottomLeftRadius: radius.xl,
+    borderBottomRightRadius: radius.xl,
+    backgroundColor: colors.primaryLight,
+    opacity: 0.65,
   },
   title: {
-    fontSize: 30,
-    fontWeight: "700",
+    fontSize: 28,
+    fontWeight: "800",
     color: colors.text,
-    marginBottom: 18,
-    textAlign: "center",
+    textAlign: "left",
+    letterSpacing: -0.4,
+  },
+  subtitle: {
+    marginTop: 6,
+    color: colors.textMuted,
+    fontSize: 14,
+    lineHeight: 20,
   },
   content: {
     width: "100%",
     maxWidth: 390,
-    gap: 14,
+    gap: 12,
     backgroundColor: colors.surface,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     borderWidth: 1,
     borderColor: colors.border,
     padding: 16,
     shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 3,
   },
 });
 

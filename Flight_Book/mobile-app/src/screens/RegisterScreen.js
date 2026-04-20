@@ -48,8 +48,18 @@ const RegisterScreen = ({ navigation }) => {
   };
 
   return (
-    <ScreenLayout title="Register Screen">
-      <Text style={styles.subtitle}>Create your account to start booking flights.</Text>
+    <ScreenLayout
+      title="Create Account"
+      subtitle="Register once and start booking smarter trips in seconds."
+      centered
+    >
+      <View style={styles.highlight}>
+        <Text style={styles.highlightTitle}>Get Started</Text>
+        <Text style={styles.highlightText}>
+          Create your profile to search flights, confirm seats, and use AI trip help.
+        </Text>
+      </View>
+      <Text style={styles.sectionLabel}>Personal Info</Text>
       <FormInput placeholder="Name" value={name} onChangeText={setName} />
       <FormInput
         placeholder="Email"
@@ -73,6 +83,7 @@ const RegisterScreen = ({ navigation }) => {
         label="Back to Login"
         onPress={() => navigation.goBack()}
         disabled={loading}
+        variant="secondary"
       />
       {loading ? (
         <View style={styles.loadingWrap}>
@@ -86,10 +97,29 @@ const RegisterScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  subtitle: {
-    textAlign: "center",
+  highlight: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceSoft,
+    borderRadius: 12,
+    padding: 12,
+    gap: 4,
+  },
+  highlightTitle: {
+    color: colors.primaryDark,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  highlightText: {
     color: colors.textMuted,
-    marginBottom: 4,
+    fontSize: 13,
+    lineHeight: 19,
+  },
+  sectionLabel: {
+    color: colors.textMuted,
+    fontWeight: "600",
+    fontSize: 13,
+    letterSpacing: 0.2,
   },
   loadingWrap: {
     flexDirection: "row",

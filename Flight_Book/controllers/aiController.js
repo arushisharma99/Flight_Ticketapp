@@ -2,7 +2,7 @@ import { handleAIChat } from "../services/aiService.js";
 
 export const aiChat = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, history } = req.body;
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({
@@ -11,7 +11,8 @@ export const aiChat = async (req, res) => {
       });
     }
 
-    const result = await handleAIChat(message);
+    const safeHistory = Array.isArray(history) ? history : [];
+    const result = await handleAIChat(message, safeHistory);
 
     return res.status(200).json({
       success: true,

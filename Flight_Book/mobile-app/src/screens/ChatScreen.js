@@ -4,6 +4,8 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
+  SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
@@ -11,6 +13,7 @@ import {
   View,
 } from "react-native";
 import { chatWithAI } from "../services/api";
+import { colors, radius } from "../components/theme";
 
 const ChatScreen = () => {
   const listRef = useRef(null);
@@ -23,6 +26,19 @@ const ChatScreen = () => {
     },
   ]);
   const [loading, setLoading] = useState(false);
+  const quickPrompts = [
+    "Cheapest Delhi to Mumbai flight",
+    "Morning flights from Delhi",
+    "How can I book a ticket?",
+  ];
+
+  const toChatHistory = (items) =>
+    items
+      .filter((item) => item.id !== "welcome")
+      .map((item) => ({
+        role: item.sender === "user" ? "user" : "assistant",
+        content: item.text,
+      }));
 
   const extractAIText = (apiResponse) => {
     const payload = apiResponse?.data || apiResponse;
@@ -49,7 +65,8 @@ const ChatScreen = () => {
 
     try {
       setLoading(true);
-      const response = await chatWithAI(trimmedMessage);
+      const history = toChatHistory(messages);
+      const response = await chatWithAI(trimmedMessage, history);
       const aiMessage = {
         id: `ai-${Date.now()}`,
         text: extractAIText(response),
@@ -68,6 +85,10 @@ const ChatScreen = () => {
     }
   };
 
+  const handleQuickPrompt = (prompt) => {
+    setMessage(prompt);
+  };
+
   const renderItem = ({ item }) => {
     const isUser = item.sender === "user";
 
@@ -81,65 +102,110 @@ const ChatScreen = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={80}
-    >
-      <Text style={styles.title}>Chat Assistant</Text>
-
-      <FlatList
-        ref={listRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        contentContainerStyle={styles.chatList}
-        onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
-      />
-
-      {loading ? (
-        <View style={styles.loadingRow}>
-          <ActivityIndicator size="small" color="#16a34a" />
-          <Text style={styles.loadingText}>AI is typing...</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={80}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>Chat Assistant</Text>
+          <Text style={styles.subtitle}>Ask routes, prices, and cheapest options instantly.</Text>
+          <View style={styles.promptRow}>
+            {quickPrompts.map((prompt) => (
+              <Pressable key={prompt} style={styles.promptChip} onPress={() => handleQuickPrompt(prompt)}>
+                <Text style={styles.promptText}>{prompt}</Text>
+              </Pressable>
+            ))}
+          </View>
         </View>
-      ) : null}
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="Type your message..."
-          value={message}
-          onChangeText={setMessage}
-          multiline
+        <FlatList
+          ref={listRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.chatList}
+          onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
         />
-        <TouchableOpacity
-          style={[styles.sendButton, (!message.trim() || loading) && styles.sendButtonDisabled]}
-          onPress={handleSend}
-          disabled={!message.trim() || loading}
-        >
-          <Text style={styles.sendText}>Send</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+
+        {loading ? (
+          <View style={styles.loadingRow}>
+            <ActivityIndicator size="small" color={colors.success} />
+            <Text style={styles.loadingText}>AI is typing...</Text>
+          </View>
+        ) : null}
+
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="Type your message..."
+            placeholderTextColor={colors.textMuted}
+            value={message}
+            onChangeText={setMessage}
+            multiline
+          />
+          <TouchableOpacity
+            style={[styles.sendButton, (!message.trim() || loading) && styles.sendButtonDisabled]}
+            onPress={handleSend}
+            disabled={!message.trim() || loading}
+          >
+            <Text style={styles.sendText}>Send</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#f3f4f6",
-    paddingTop: 16,
+    backgroundColor: colors.background,
+    paddingTop: 6,
+  },
+  header: {
+    paddingHorizontal: 14,
+    paddingBottom: 6,
   },
   title: {
-    textAlign: "center",
-    fontSize: 22,
-    fontWeight: "700",
-    marginBottom: 8,
+    fontSize: 30,
+    fontWeight: "800",
+    color: colors.text,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    marginTop: 4,
+    color: colors.textMuted,
+    fontSize: 13,
+  },
+  promptRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 10,
+  },
+  promptChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    borderRadius: 999,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+  },
+  promptText: {
+    fontSize: 11,
+    color: colors.textMuted,
+    fontWeight: "600",
   },
   chatList: {
-    paddingHorizontal: 12,
-    paddingBottom: 12,
-    gap: 8,
+    paddingHorizontal: 14,
+    paddingBottom: 10,
+    gap: 9,
   },
   messageRow: {
     width: "100%",
@@ -153,26 +219,27 @@ const styles = StyleSheet.create({
   },
   bubble: {
     maxWidth: "82%",
-    borderRadius: 10,
-    padding: 10,
+    borderRadius: radius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
   },
   userBubble: {
-    backgroundColor: "#2563eb",
+    backgroundColor: colors.primaryDark,
     borderBottomRightRadius: 2,
   },
   aiBubble: {
-    backgroundColor: "#ffffff",
+    backgroundColor: colors.surface,
     borderBottomLeftRadius: 2,
     borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderColor: colors.border,
   },
   messageText: {
     fontSize: 14,
-    lineHeight: 18,
-    color: "#111827",
+    lineHeight: 20,
+    color: colors.text,
   },
   userMessageText: {
-    color: "#ffffff",
+    color: colors.surface,
   },
   loadingRow: {
     flexDirection: "row",
@@ -182,7 +249,7 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   loadingText: {
-    color: "#4b5563",
+    color: colors.textMuted,
     fontSize: 13,
   },
   inputRow: {
@@ -190,33 +257,33 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     gap: 8,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
-    backgroundColor: "#ffffff",
+    borderTopColor: colors.border,
+    backgroundColor: colors.surface,
   },
   input: {
     flex: 1,
-    minHeight: 44,
+    minHeight: 42,
     maxHeight: 110,
     borderWidth: 1,
-    borderColor: "#d1d5db",
+    borderColor: colors.borderStrong,
     borderRadius: 12,
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: "#fff",
+    paddingVertical: 9,
+    backgroundColor: colors.surfaceSoft,
   },
   sendButton: {
-    backgroundColor: "#16a34a",
+    backgroundColor: colors.success,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 15,
+    paddingVertical: 11,
   },
   sendButtonDisabled: {
-    opacity: 0.5,
+    backgroundColor: "#a7e3c5",
   },
   sendText: {
-    color: "#fff",
+    color: colors.surface,
     fontWeight: "700",
   },
 });

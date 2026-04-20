@@ -2,4 +2,4 @@
 const envApiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
 
 // Default LAN API endpoint (same network as your mobile device).
-export const API_BASE_URL = envApiBaseUrl || "http://172.16.115.27:5000/api";
+export const API_BASE_URL = envApiBaseUrl || "http://192.168.137.1:5000/api";

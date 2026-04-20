@@ -73,8 +73,8 @@ export const createBooking = async (data) => {
   return handleRequest(() => api.post("/bookings", data));
 };
 
-export const chatWithAI = async (message) => {
-  return handleRequest(() => api.post("/ai/chat", { message }));
+export const chatWithAI = async (message, history = []) => {
+  return handleRequest(() => api.post("/ai/chat", { message, history }));
 };
 
 export default api;

@@ -34,7 +34,14 @@ const FlightScreen = ({ navigation }) => {
   };
 
   return (
-    <ScreenLayout title="Flight Screen">
+    <ScreenLayout
+      title="Find Flights"
+      subtitle="Pick source and destination to view the latest available routes."
+    >
+      <View style={styles.filterCard}>
+        <Text style={styles.filterTitle}>Route Search</Text>
+        <Text style={styles.filterText}>Use city names and tap search for latest flights.</Text>
+      </View>
       <FormInput placeholder="Source city" value={source} onChangeText={setSource} />
       <FormInput
         placeholder="Destination city"
@@ -55,13 +62,18 @@ const FlightScreen = ({ navigation }) => {
       <StatusMessage message={message} isError={isError} />
 
       <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
+        {!loading && flights.length > 0 ? (
+          <Text style={styles.resultLabel}>{flights.length} flights available</Text>
+        ) : null}
         {flights.map((flight) => (
           <View key={flight.id} style={styles.card}>
-            <Text style={styles.routeText}>
-              {flight.source.toUpperCase()} to {flight.destination.toUpperCase()}
-            </Text>
-            <Text style={styles.metaText}>Airline: {flight.airline}</Text>
-            <Text style={styles.priceText}>Price: Rs. {flight.price}</Text>
+            <View style={styles.routeRow}>
+              <Text style={styles.routeText}>
+                {flight.source.toUpperCase()} -> {flight.destination.toUpperCase()}
+              </Text>
+              <Text style={styles.airlineBadge}>{flight.airline}</Text>
+            </View>
+            <Text style={styles.priceText}>Rs. {flight.price}</Text>
             <Text style={styles.metaText}>
               Departure: {new Date(flight.departureTime).toLocaleString()}
             </Text>
@@ -82,9 +94,32 @@ const styles = StyleSheet.create({
     marginTop: 4,
     maxHeight: 350,
   },
+  filterCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: 12,
+    backgroundColor: colors.surfaceSoft,
+    gap: 3,
+  },
+  filterTitle: {
+    color: colors.primaryDark,
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  filterText: {
+    color: colors.textMuted,
+    fontSize: 13,
+  },
   listContent: {
     gap: 12,
     paddingBottom: 8,
+  },
+  resultLabel: {
+    color: colors.textMuted,
+    fontWeight: "600",
+    marginTop: 2,
+    marginBottom: 4,
   },
   loadingWrap: {
     flexDirection: "row",
@@ -101,21 +136,42 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.lg,
     padding: 14,
+    gap: 10,
+    backgroundColor: colors.surface,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  routeRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     gap: 8,
-    backgroundColor: colors.surfaceMuted,
   },
   routeText: {
     fontWeight: "700",
     fontSize: 15,
     color: colors.text,
+    flex: 1,
+  },
+  airlineBadge: {
+    color: colors.primaryDark,
+    fontSize: 12,
+    fontWeight: "700",
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: radius.sm,
   },
   metaText: {
     color: colors.textMuted,
   },
   priceText: {
     color: colors.primaryDark,
-    fontWeight: "700",
-    fontSize: 15,
+    fontWeight: "800",
+    fontSize: 20,
   },
 });
 

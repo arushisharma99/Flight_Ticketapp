@@ -8,6 +8,7 @@ import HomeScreen from "../screens/HomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import { loadToken } from "../services/authService";
+import { colors } from "../components/theme";
 
 const Stack = createNativeStackNavigator();
 
@@ -29,8 +30,15 @@ const AppNavigator = () => {
 
   if (checkingAuth) {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" />
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: colors.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.primaryDark} />
       </View>
     );
   }
@@ -40,6 +48,15 @@ const AppNavigator = () => {
       initialRouteName={initialRoute}
       screenOptions={{
         headerTitleAlign: "center",
+        headerShadowVisible: false,
+        headerStyle: {
+          backgroundColor: colors.surface,
+        },
+        headerTitleStyle: {
+          color: colors.text,
+          fontWeight: "700",
+        },
+        headerTintColor: colors.text,
       }}
     >
       <Stack.Screen name="Login" component={LoginScreen} />

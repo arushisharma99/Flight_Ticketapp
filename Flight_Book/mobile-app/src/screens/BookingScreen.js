@@ -7,7 +7,7 @@ import StatusMessage from "../components/StatusMessage";
 import { colors, radius } from "../components/theme";
 import { createBooking } from "../services/api";
 
-const BookingScreen = ({ route }) => {
+const BookingScreen = ({ route, navigation }) => {
   const selectedFlight = route.params?.flight;
   const [seats, setSeats] = useState("1");
   const [loading, setLoading] = useState(false);
@@ -43,32 +43,45 @@ const BookingScreen = ({ route }) => {
   };
 
   return (
-    <ScreenLayout title="Booking Screen">
+    <ScreenLayout
+      title="Confirm Booking"
+      subtitle="Review selected flight details and choose the number of seats."
+    >
       {selectedFlight ? (
         <View style={styles.flightPreview}>
           <Text style={styles.previewTitle}>Selected Flight</Text>
-          <Text>
-            {selectedFlight.source.toUpperCase()} to {selectedFlight.destination.toUpperCase()}
+          <Text style={styles.routeText}>
+            {selectedFlight.source.toUpperCase()} -> {selectedFlight.destination.toUpperCase()}
           </Text>
-          <Text>Airline: {selectedFlight.airline}</Text>
-          <Text>Price: Rs. {selectedFlight.price}</Text>
-          <Text>
+          <Text style={styles.metaText}>Airline: {selectedFlight.airline}</Text>
+          <Text style={styles.priceText}>Rs. {selectedFlight.price}</Text>
+          <Text style={styles.metaText}>
             Departure: {new Date(selectedFlight.departureTime).toLocaleString()}
           </Text>
         </View>
       ) : (
-        <StatusMessage
-          message="No flight data received. Go back and select a flight."
-          isError
-        />
+        <View style={styles.emptyState}>
+          <StatusMessage
+            message="No flight selected yet. Choose a flight from the Flights screen first."
+            isError
+          />
+          <PrimaryButton
+            label="Go to Flights"
+            onPress={() => navigation.navigate("Flights")}
+            variant="secondary"
+          />
+        </View>
       )}
 
-      <FormInput
-        placeholder="Seats"
-        keyboardType="numeric"
-        value={seats}
-        onChangeText={setSeats}
-      />
+      <View style={styles.sectionWrap}>
+        <Text style={styles.sectionLabel}>Number of seats</Text>
+        <FormInput
+          placeholder="Seats"
+          keyboardType="numeric"
+          value={seats}
+          onChangeText={setSeats}
+        />
+      </View>
       <PrimaryButton
         label={loading ? "Confirming..." : "Confirm Booking"}
         onPress={handleCreateBooking}
@@ -89,14 +102,40 @@ const styles = StyleSheet.create({
   flightPreview: {
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    padding: 14,
+    padding: 13,
     gap: 6,
+  },
+  emptyState: {
+    gap: 10,
+  },
+  sectionWrap: {
+    gap: 6,
+  },
+  sectionLabel: {
+    color: colors.textMuted,
+    fontWeight: "600",
+    fontSize: 13,
+    letterSpacing: 0.2,
   },
   previewTitle: {
     fontWeight: "700",
+    color: colors.primaryDark,
+    fontSize: 14,
+  },
+  routeText: {
     color: colors.text,
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  priceText: {
+    color: colors.primaryDark,
+    fontWeight: "800",
+    fontSize: 18,
+  },
+  metaText: {
+    color: colors.textMuted,
   },
   loadingWrap: {
     flexDirection: "row",

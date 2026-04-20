@@ -14,7 +14,7 @@ const StatusMessage = ({ message, isError = false }) => {
 const styles = StyleSheet.create({
   container: {
     borderRadius: radius.md,
-    paddingVertical: 10,
+    paddingVertical: 11,
     paddingHorizontal: 12,
     borderWidth: 1,
   },
@@ -27,8 +27,9 @@ const styles = StyleSheet.create({
     borderColor: "#bbf7d0",
   },
   text: {
-    textAlign: "center",
+    textAlign: "left",
     fontSize: 14,
+    lineHeight: 20,
   },
   error: {
     color: colors.error,

@@ -1,62 +1,32 @@
 import OpenAI from "openai";
-import { searchFlights } from "./flightService.js";
+const normalizeHistory = (history) =>
+  history
+    .filter(
+      (item) =>
+        item &&
+        (item.role === "user" || item.role === "assistant") &&
+        typeof item.content === "string" &&
+        item.content.trim()
+    )
+    .slice(-12)
+    .map((item) => ({
+      role: item.role,
+      content: item.content.trim(),
+    }));
 
-const cityPattern = /from\s+([a-zA-Z\s]+?)\s+to\s+([a-zA-Z\s]+)/i;
-
-const normalizeCity = (city) => String(city || "").trim().toLowerCase();
-
-const formatFlight = (flight) => ({
-  airline: flight.airline,
-  source: flight.source,
-  destination: flight.destination,
-  price: flight.price,
-  departureTime: flight.departureTime,
-});
-
-const findCheapestFlight = async (message) => {
-  const match = message.match(cityPattern);
-  if (!match) return null;
-
-  const source = normalizeCity(match[1]);
-  const destination = normalizeCity(match[2]);
-  const flights = await searchFlights({ source, destination });
-
-  if (flights.length === 0) {
-    return {
-      intent: "find_cheapest_flight",
-      source,
-      destination,
-      count: 0,
-      cheapestFlight: null,
-      message: `No flights found from ${source} to ${destination}.`,
-    };
-  }
-
-  const cheapestFlight = flights.reduce((min, current) =>
-    current.price < min.price ? current : min
-  );
-
-  return {
-    intent: "find_cheapest_flight",
-    source,
-    destination,
-    count: flights.length,
-    cheapestFlight: formatFlight(cheapestFlight),
-    message: `Cheapest flight from ${source} to ${destination} found.`,
-  };
-};
-
-const getOpenAIResponse = async (message) => {
+const getOpenAIResponse = async (message, history = []) => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     return {
       intent: "general_chat",
-      message: "OPENAI_API_KEY is not configured.",
-      response: "Please set OPENAI_API_KEY in your environment to enable AI chat.",
+      message: "AI is not configured yet.",
+      response:
+        "AI chat is currently unavailable because OPENAI_API_KEY is missing on the backend server.",
     };
   }
 
   const openai = new OpenAI({ apiKey });
+  const chatHistory = normalizeHistory(history);
 
   const completion = await openai.chat.completions.create({
     model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
@@ -64,11 +34,12 @@ const getOpenAIResponse = async (message) => {
       {
         role: "system",
         content:
-          "You are a travel assistant API. Return concise responses suitable for JSON fields.",
+          "You are a helpful AI travel assistant in a flight booking app. Answer naturally like ChatGPT. Be concise and friendly, and help with flights, routes, pricing tips, and booking guidance.",
       },
+      ...chatHistory,
       { role: "user", content: message },
     ],
-    temperature: 0.2,
+    temperature: 0.5,
   });
 
   return {
@@ -78,11 +49,4 @@ const getOpenAIResponse = async (message) => {
   };
 };
 
-export const handleAIChat = async (message) => {
-  const cheapestFlightResult = await findCheapestFlight(message);
-  if (cheapestFlightResult) {
-    return cheapestFlightResult;
-  }
-
-  return getOpenAIResponse(message);
-};
+export const handleAIChat = async (message, history = []) => getOpenAIResponse(message, history);
